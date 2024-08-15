@@ -51,13 +51,9 @@ jobs:
       - name: Get API Gateway ID
         id: get_api_id
         run: |
-          API_ID=$(aws apigateway get-rest-apis --query "items[?name=='crud-api'].id" --output text)
+          API_ID=$(aws apigateway get-rest-apis --query "items[-1].id" --output text | sed 's/ //g')
           echo "API_ID=${API_ID}" >> $GITHUB_ENV
           echo "API_ID=${API_ID}"
-
-      - name: Check API Gateway ID
-        run: |
-          aws apigateway get-rest-apis --query "items[?id=='${{ env.API_ID }}']" --output text
 
       - name: Get Resource ID
         id: get_resource_id
@@ -66,20 +62,12 @@ jobs:
           echo "RESOURCE_ID=${RESOURCE_ID}" >> $GITHUB_ENV
           echo "RESOURCE_ID=${RESOURCE_ID}"
 
-      - name: Check Resource ID
+      - name: Get Lambda Function ARN
+        id: get_lambda_function_arn
         run: |
-          aws apigateway get-resources --rest-api-id ${{ env.API_ID }} --query "items[?id=='${{ env.RESOURCE_ID }}']" --output text
-
-      - name: Get Lambda Function Name
-        id: get_lambda_function_name
-        run: |
-          FUNCTION_NAME=$(aws lambda list-functions --query "Functions[?FunctionName=='crudLambdaFunction'].FunctionName" --output text)
-          echo "FUNCTION_NAME=${FUNCTION_NAME}" >> $GITHUB_ENV
-          echo "FUNCTION_NAME=${FUNCTION_NAME}"
-
-      - name: Check Lambda Function
-        run: |
-          aws lambda get-function --function-name ${{ env.FUNCTION_NAME }}
+          FUNCTION_ARN=$(aws lambda list-functions --query "Functions[?FunctionName=='crudLambdaFunction'].FunctionArn" --output text)
+          echo "FUNCTION_ARN=${FUNCTION_ARN}" >> $GITHUB_ENV
+          echo "FUNCTION_ARN=${FUNCTION_ARN}"
 
       - name: Terraform Init
         run: terraform init
@@ -89,7 +77,7 @@ jobs:
         run: |
           terraform import aws_dynamodb_table.items_table items
           terraform import aws_iam_role.lambda_exec_role lambda_exec_role
-          terraform import aws_lambda_function.crud_lambda ${{ env.FUNCTION_NAME }}
+          terraform import aws_lambda_function.crud_lambda ${{ env.FUNCTION_ARN }}
           terraform import aws_api_gateway_rest_api.crud_api ${{ env.API_ID }}
           terraform import aws_api_gateway_resource.items ${{ env.API_ID }}/${{ env.RESOURCE_ID }}
           terraform import aws_api_gateway_method.items_method_get ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/GET
@@ -100,7 +88,7 @@ jobs:
           terraform import aws_api_gateway_integration.lambda_integration_post ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/POST
           terraform import aws_api_gateway_integration.lambda_integration_put ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/PUT
           terraform import aws_api_gateway_integration.lambda_integration_delete ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/DELETE
-          terraform import aws_lambda_permission.api_gateway_permission ${{ env.FUNCTION_NAME }}
+          terraform import aws_lambda_permission.api_gateway_permission ${{ env.FUNCTION_ARN }}
         working-directory: ./terraform
 
       - name: Terraform Apply
