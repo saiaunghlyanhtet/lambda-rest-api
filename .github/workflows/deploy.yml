@@ -80,14 +80,14 @@ jobs:
           terraform import aws_lambda_function.crud_lambda ${{ env.FUNCTION_ARN }}
           terraform import aws_api_gateway_rest_api.crud_api ${{ env.API_ID }}
           terraform import aws_api_gateway_resource.items ${{ env.API_ID }}/${{ env.RESOURCE_ID }}
-          terraform import aws_api_gateway_method.items_method_get ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/GET
-          terraform import aws_api_gateway_method.items_method_post ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/POST
-          terraform import aws_api_gateway_method.items_method_put ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/PUT
-          terraform import aws_api_gateway_method.items_method_delete ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/DELETE
-          terraform import aws_api_gateway_integration.lambda_integration_get ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/GET
-          terraform import aws_api_gateway_integration.lambda_integration_post ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/POST
-          terraform import aws_api_gateway_integration.lambda_integration_put ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/PUT
-          terraform import aws_api_gateway_integration.lambda_integration_delete ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/DELETE
+          # terraform import aws_api_gateway_method.items_method_get ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/GET
+          # terraform import aws_api_gateway_method.items_method_post ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/POST
+          # terraform import aws_api_gateway_method.items_method_put ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/PUT
+          # terraform import aws_api_gateway_method.items_method_delete ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/DELETE
+          # terraform import aws_api_gateway_integration.lambda_integration_get ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/GET
+          # terraform import aws_api_gateway_integration.lambda_integration_post ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/POST
+          # terraform import aws_api_gateway_integration.lambda_integration_put ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/PUT
+          # terraform import aws_api_gateway_integration.lambda_integration_delete ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/DELETE
           terraform import aws_lambda_permission.api_gateway_permission ${{ env.FUNCTION_ARN }}
         working-directory: ./terraform
 
