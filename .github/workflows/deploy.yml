@@ -42,6 +42,16 @@ jobs:
         run: terraform init
         working-directory: ./terraform
 
+      - name: Refresh Terraform State
+        run: terraform refresh
+        working-directory: ./terraform
+
+      - name: Import Existing Resources
+        run: |
+          terraform import aws_dynamodb_table.items_table items || true
+          terraform import aws_iam_role.lambda_exec_role lambda_exec_role || true
+        working-directory: ./terraform
+
       - name: Terraform Apply
         run: terraform apply -auto-approve
         working-directory: ./terraform
