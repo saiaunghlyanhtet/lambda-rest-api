@@ -62,6 +62,13 @@ jobs:
           echo "RESOURCE_ID=${RESOURCE_ID}" >> $GITHUB_ENV
           echo "RESOURCE_ID=${RESOURCE_ID}"
 
+      - name: Get Items Resource ID
+        id: get_items_resource_id
+        run: |
+          ITEMS_RESOURCE_ID=$(aws apigateway get-resources --rest-api-id ${{ env.API_ID }} --query "items[?path=='/items/{id}'].id" --output text)
+          echo "ITEMS_RESOURCE_ID=${ITEMS_RESOURCE_ID}" >> $GITHUB_ENV
+          echo "ITEMS_RESOURCE_ID=${ITEMS_RESOURCE_ID}"
+
       - name: Get Lambda Function ARN
         id: get_lambda_function_arn
         run: |
@@ -80,6 +87,7 @@ jobs:
           terraform import aws_lambda_function.crud_lambda ${{ env.FUNCTION_ARN }}
           terraform import aws_api_gateway_rest_api.crud_api ${{ env.API_ID }}
           terraform import aws_api_gateway_resource.items ${{ env.API_ID }}/${{ env.RESOURCE_ID }}
+          terraform import aws_api_gateway_resource.items_id ${{ env.API_ID }}/items/${{ env.ITEMS_RESOURCE_ID }}
           # terraform import aws_api_gateway_method.items_method_get ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/GET
           # terraform import aws_api_gateway_method.items_method_post ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/POST
           # terraform import aws_api_gateway_method.items_method_put ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/PUT
