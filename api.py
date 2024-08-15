@@ -2,9 +2,9 @@ import json
 import boto3
 from botocore.exceptions import ClientError
 
-dynamodb = boto3.resource('dynamodb')
+dynamodb = boto3.resource('dynamodb', region_name='ap-northeast-1')
 table_name = 'items'
-table = dynamodb.Table(table_name, region_name='ap-northeast-1')
+table = dynamodb.Table(table_name)
 
 def lambda_handler(event, context):
     http_method = event['httpMethod']
