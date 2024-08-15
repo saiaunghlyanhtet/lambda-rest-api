@@ -82,9 +82,15 @@ resource "aws_api_gateway_resource" "items" {
   path_part   = "items"
 }
 
+resource "aws_api_gateway_resource" "items_id" {
+  rest_api_id = aws_api_gateway_rest_api.crud_api.id
+  parent_id   = aws_api_gateway_resource.items.id
+  path_part   = "{id}"
+}
+
 resource "aws_api_gateway_method" "items_method_get" {
   rest_api_id   = aws_api_gateway_rest_api.crud_api.id
-  resource_id   = aws_api_gateway_resource.items.id
+  resource_id   = aws_api_gateway_resource.items_id.id
   http_method   = "GET"
   authorization = "NONE"
 }
@@ -98,21 +104,21 @@ resource "aws_api_gateway_method" "items_method_post" {
 
 resource "aws_api_gateway_method" "items_method_put" {
   rest_api_id   = aws_api_gateway_rest_api.crud_api.id
-  resource_id   = aws_api_gateway_resource.items.id
+  resource_id   = aws_api_gateway_resource.items_id.id
   http_method   = "PUT"
   authorization = "NONE"
 }
 
 resource "aws_api_gateway_method" "items_method_delete" {
   rest_api_id   = aws_api_gateway_rest_api.crud_api.id
-  resource_id   = aws_api_gateway_resource.items.id
+  resource_id   = aws_api_gateway_resource.items_id.id
   http_method   = "DELETE"
   authorization = "NONE"
 }
 
 resource "aws_api_gateway_integration" "lambda_integration_get" {
   rest_api_id             = aws_api_gateway_rest_api.crud_api.id
-  resource_id             = aws_api_gateway_resource.items.id
+  resource_id             = aws_api_gateway_resource.items_id.id
   http_method             = aws_api_gateway_method.items_method_get.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
@@ -130,7 +136,7 @@ resource "aws_api_gateway_integration" "lambda_integration_post" {
 
 resource "aws_api_gateway_integration" "lambda_integration_put" {
   rest_api_id             = aws_api_gateway_rest_api.crud_api.id
-  resource_id             = aws_api_gateway_resource.items.id
+  resource_id             = aws_api_gateway_resource.items_id.id
   http_method             = aws_api_gateway_method.items_method_put.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
@@ -139,7 +145,7 @@ resource "aws_api_gateway_integration" "lambda_integration_put" {
 
 resource "aws_api_gateway_integration" "lambda_integration_delete" {
   rest_api_id             = aws_api_gateway_rest_api.crud_api.id
-  resource_id             = aws_api_gateway_resource.items.id
+  resource_id             = aws_api_gateway_resource.items_id.id
   http_method             = aws_api_gateway_method.items_method_delete.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
