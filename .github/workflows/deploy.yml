@@ -48,7 +48,7 @@ jobs:
       - name: Get API Gateway ID
         id: get_api_id
         run: |
-          API_ID=$(aws apigateway get-rest-apis --query "items[?name=='crud-api'].id" --output text)
+          API_ID=$(aws apigateway get-rest-apis --query "items[?name=='crud-api'].id" --output text | head -n 1)
           echo "API_ID=${API_ID}" >> $GITHUB_ENV
 
       - name: Get Resource ID
