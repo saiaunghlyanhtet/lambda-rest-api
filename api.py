@@ -65,8 +65,18 @@ def create_item(event):
         }
 
 def update_item(event):
-    item_id = event['pathParameters']['id']
-    item = json.loads(event['body'])
+    # Safely extract pathParameters
+    path_parameters = event.get('pathParameters', {})
+    item_id = path_parameters.get('id', '')
+
+    if not item_id:
+        return {
+            'statusCode': 400,
+            'body': json.dumps('Bad Request: ID not provided')
+        }
+
+    item = json.loads(event.get('body', '{}'))
+
     try:
         table.update_item(
             Key={
@@ -74,7 +84,7 @@ def update_item(event):
             },
             UpdateExpression='SET name = :name',
             ExpressionAttributeValues={
-                ':name': item['name'],
+                ':name': item.get('name', ''),
             }
         )
     except ClientError as e:
