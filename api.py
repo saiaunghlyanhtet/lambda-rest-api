@@ -4,7 +4,7 @@ from botocore.exceptions import ClientError
 
 dynamodb = boto3.resource('dynamodb')
 table_name = 'items'
-table = dynamodb.Table(table_name)
+table = dynamodb.Table(table_name, region_name='ap-northeast-1')
 
 def lambda_handler(event, context):
     http_method = event['httpMethod']
