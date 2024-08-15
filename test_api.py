@@ -1,18 +1,21 @@
 import unittest
 import json
-from api import lambda_handler
+from api import lambda_handler  # Ensure this is correctly imported
 from moto import mock_aws
 import boto3
 
 class TestAPI(unittest.TestCase):
-    
-    
+
     @mock_aws
     def setUp(self):
-        self.dynamodb = boto3.resource('dynamodb', region_name='ap-northeast-1', aws_access_key_id="ak",
-        aws_secret_access_key="sk")
+        self.dynamodb = boto3.client(
+            'dynamodb',
+            region_name='ap-northeast-1',
+            aws_access_key_id='fake_access_key',
+            aws_secret_access_key='fake_secret_key'
+        )
         self.table_name = 'items'
-        self.table = self.dynamodb.create_table(
+        self.dynamodb.create_table(
             TableName=self.table_name,
             KeySchema=[
                 {
@@ -29,14 +32,16 @@ class TestAPI(unittest.TestCase):
             ProvisionedThroughput={
                 'ReadCapacityUnits': 5,
                 'WriteCapacityUnits': 5
-            },
+            }
         )
-        self.table.wait_until_exists()
-        
+        # Wait until the table exists
+        waiter = self.dynamodb.get_waiter('table_exists')
+        waiter.wait(TableName=self.table_name)
+
     @mock_aws
     def tearDown(self):
-        self.table.delete()
-        
+        self.dynamodb.delete_table(TableName=self.table_name)
+
     @mock_aws
     def test_create_item(self):
         event = {
@@ -48,13 +53,14 @@ class TestAPI(unittest.TestCase):
         }
         response = lambda_handler(event, None)
         self.assertEqual(response['statusCode'], 201)
-        
+
     @mock_aws
     def test_get_item(self):
-        self.table.put_item(
+        self.dynamodb.put_item(
+            TableName=self.table_name,
             Item={
-                'id': '1',
-                'name': 'item1'
+                'id': {'S': '1'},
+                'name': {'S': 'item1'}
             }
         )
         event = {
@@ -69,13 +75,14 @@ class TestAPI(unittest.TestCase):
             'id': '1',
             'name': 'item1'
         })
-        
+
     @mock_aws
     def test_update_item(self):
-        self.table.update_item(
+        self.dynamodb.put_item(
+            TableName=self.table_name,
             Item={
-                'id': '1',
-                'name': 'item1'
+                'id': {'S': '1'},
+                'name': {'S': 'item1'}
             }
         )
         event = {
@@ -93,13 +100,14 @@ class TestAPI(unittest.TestCase):
             'id': '1',
             'name': 'item2'
         })
-        
+
     @mock_aws
     def test_delete_item(self):
-        self.table.put_item(
+        self.dynamodb.put_item(
+            TableName=self.table_name,
             Item={
-                'id': '1',
-                'name': 'item1'
+                'id': {'S': '1'},
+                'name': {'S': 'item1'}
             }
         )
         event = {
@@ -111,7 +119,7 @@ class TestAPI(unittest.TestCase):
         response = lambda_handler(event, None)
         self.assertEqual(response['statusCode'], 200)
         self.assertEqual(json.loads(response['body']), 'Item deleted')
-        
+
     @mock_aws
     def test_item_not_found(self):
         event = {
@@ -123,6 +131,6 @@ class TestAPI(unittest.TestCase):
         response = lambda_handler(event, None)
         self.assertEqual(response['statusCode'], 404)
         self.assertEqual(json.loads(response['body']), 'Item not found')
-        
+
 if __name__ == '__main__':
     unittest.main()
