@@ -54,7 +54,7 @@ jobs:
       - name: Get Resource ID
         id: get_resource_id
         run: |
-          RESOURCE_ID=$(aws.apigateway.get-resources --rest-api-id ${{ env.API_ID }} --query "items[?path=='/items'].id" --output text)
+          RESOURCE_ID=$(aws apigateway get-resources --rest-api-id ${{ env.API_ID }} --query "items[?path=='/items'].id" --output text)
           echo "RESOURCE_ID=${RESOURCE_ID}" >> $GITHUB_ENV
 
       - name: Get Lambda Function Name
