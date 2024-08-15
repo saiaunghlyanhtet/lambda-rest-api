@@ -41,16 +41,20 @@ jobs:
       - name: Terraform Init
         run: terraform init
         working-directory: ./terraform
-
-      - name: Refresh Terraform State
-        run: terraform refresh
-        working-directory: ./terraform
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ap-northeast-1
 
       - name: Import Existing Resources
         run: |
           terraform import aws_dynamodb_table.items_table items || true
           terraform import aws_iam_role.lambda_exec_role lambda_exec_role || true
         working-directory: ./terraform
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ap-northeast-1
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
