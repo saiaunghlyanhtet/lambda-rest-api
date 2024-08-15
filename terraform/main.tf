@@ -3,13 +3,15 @@ provider "aws" {
 }
 
 resource "aws_dynamodb_table" "items_table" {
-  name         = "items"
-  hash_key     = "id"
+  name     = "items"
+  hash_key = "id"
 
   attribute {
     name = "id"
     type = "S"
   }
+
+  billing_mode = "PAY_PER_REQUEST"
 }
 
 resource "aws_iam_role" "lambda_exec_role" {
