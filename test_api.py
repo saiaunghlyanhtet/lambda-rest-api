@@ -1,12 +1,12 @@
 import unittest
 import json
 from api import lambda_handler
-from moto import mock_dynamodb2
+from moto import mock_aws
 import boto3
 
 class TestAPI(unittest.TestCase):
     
-    @mock_dynamodb2
+    @mock_aws
     def setUp(self):
         self.dynamodb = boto3.resource('dynamodb', region_name='ap-northeast-1')
         self.table_name = 'items'
@@ -32,11 +32,11 @@ class TestAPI(unittest.TestCase):
         )
         self.table.wait_until_exists()
         
-    @mock_dynamodb2
+    @mock_aws
     def tearDown(self):
         self.table.delete()
         
-    @mock_dynamodb2
+    @mock_aws
     def test_create_item(self):
         event = {
             'httpMethod': 'POST',
@@ -48,7 +48,7 @@ class TestAPI(unittest.TestCase):
         response = lambda_handler(event, None)
         self.assertEqual(response['statusCode'], 201)
         
-    @mock_dynamodb2
+    @mock_aws
     def test_get_item(self):
         self.table.put_item(
             Item={
@@ -69,7 +69,7 @@ class TestAPI(unittest.TestCase):
             'name': 'item1'
         })
         
-    @mock_dynamodb2
+    @mock_aws
     def test_update_item(self):
         self.table.put_item(
             Item={
@@ -93,7 +93,7 @@ class TestAPI(unittest.TestCase):
             'name': 'item2'
         })
         
-    @mock_dynamodb2
+    @mock_aws
     def test_delete_item(self):
         self.table.put_item(
             Item={
@@ -111,7 +111,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response['statusCode'], 200)
         self.assertEqual(json.loads(response['body']), 'Item deleted')
         
-    @mock_dynamodb2
+    @mock_aws
     def test_item_not_found(self):
         event = {
             'httpMethod': 'GET',
