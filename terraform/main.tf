@@ -1,19 +1,19 @@
 module "provider" {
-  source = "./provider.tf"
+  source = "./provider"
 }
 
 module "dynamodb" {
-  source = "./dynamodb.tf"
+  source = "./dynamodb"
 }
 
 module "api" {
-  source = "./api.tf"
+  source = "./api"
 }
 
 module "apigateway" {
-  source = "./apigateway.tf"
+  source = "./apigateway"
 }
 
 module "iam" {
-  source = "./iam.tf"
+  source = "./iam"
 }
