@@ -88,7 +88,7 @@ jobs:
           # terraform import aws_api_gateway_integration.lambda_integration_post ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/POST
           # terraform import aws_api_gateway_integration.lambda_integration_put ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/PUT
           # terraform import aws_api_gateway_integration.lambda_integration_delete ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/DELETE
-          terraform import aws_lambda_permission.api_gateway_permission crudLambdaFunction/*/AllowAPIGatewayInvoke
+          terraform import aws_lambda_permission.api_gateway_permission crudLambdaFunction/AllowAPIGatewayInvoke
         working-directory: ./terraform
 
       - name: Terraform Apply
