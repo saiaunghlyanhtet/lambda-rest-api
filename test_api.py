@@ -8,11 +8,6 @@ class TestAPI(unittest.TestCase):
     
     @mock_aws
     def setUp(self):
-        boto3.setup_default_session(
-            AWS_ACCESS_KEY_ID='dummy_access_key',
-            AWS_SECRET_ACCESS_KEY='dummy_secret_key',
-            AWS_DEFAULT_REGION='ap-northeast-1'
-        )
         self.dynamodb = boto3.resource('dynamodb', region_name='ap-northeast-1')
         self.table_name = 'items'
         self.table = self.dynamodb.create_table(
