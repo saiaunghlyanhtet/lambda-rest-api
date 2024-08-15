@@ -89,10 +89,10 @@ jobs:
           terraform import aws_api_gateway_resource.items ${{ env.API_ID }}/${{ env.RESOURCE_ID }}
           terraform import aws_api_gateway_resource.items_id ${{ env.API_ID }}/${{ env.ITEMS_RESOURCE_ID }}
 
-          terraform import aws_api_gateway_method.items_method_get ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/GET
-          terraform import aws_api_gateway_method.items_method_post ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/POST
-          terraform import aws_api_gateway_method.items_method_put ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/PUT
-          terraform import aws_api_gateway_method.items_method_delete ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/DELETE
+          terraform import aws_api_gateway_method.items_method_get ${{ env.API_ID }}/${{ env.ITEMS_RESOURCE_ID }}/GET
+          terraform import aws_api_gateway_method.items_method_post ${{ env.API_ID }}/${{ env.ITEMS_RESOURCE_ID }}/POST
+          terraform import aws_api_gateway_method.items_method_put ${{ env.API_ID }}/${{ env.ITEMS_RESOURCE_ID }}/PUT
+          terraform import aws_api_gateway_method.items_method_delete ${{ env.API_ID }}/${{ env.ITEMS_RESOURCE_ID }}/DELETE
 
           terraform import aws_api_gateway_integration.lambda_integration_get ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/GET
           terraform import aws_api_gateway_integration.lambda_integration_post ${{ env.API_ID }}/${{ env.RESOURCE_ID }}/POST
