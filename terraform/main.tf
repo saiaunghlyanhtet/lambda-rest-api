@@ -82,6 +82,12 @@ resource "aws_api_gateway_rest_api" "crud_api" {
   name = "crud-api"
 }
 
+resource "aws_api_gateway_resource" "items" {
+  rest_api_id = data.aws_api_gateway_rest_api.crud_api.id
+  parent_id   = data.aws_api_gateway_rest_api.crud_api.root_resource_id
+  path_part   = "items"
+}
+
 resource "aws_api_gateway_method" "items_method_get" {
   rest_api_id   = data.aws_api_gateway_rest_api.crud_api.id
   resource_id   = data.aws_api_gateway_resource.items.id
