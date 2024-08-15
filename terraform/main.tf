@@ -14,7 +14,9 @@ resource "aws_dynamodb_table" "items_table" {
   billing_mode = "PAY_PER_REQUEST"
 
   lifecycle {
-    prevent_destroy = true
+    ignore_changes = [
+      name, # Ignore changes to name, as the table already exists
+    ]
   }
 }
 
@@ -41,8 +43,9 @@ resource "aws_iam_role" "lambda_exec_role" {
   ]
 
   lifecycle {
-    create_before_destroy = true
-    prevent_destroy       = true
+    ignore_changes = [
+      name, # Ignore changes to the role name
+    ]
   }
 }
 
@@ -55,125 +58,85 @@ resource "aws_lambda_function" "crud_lambda" {
   source_code_hash = filebase64sha256("lambda_function.zip")
 
   lifecycle {
-    create_before_destroy = true
-    prevent_destroy       = true
+    ignore_changes = [
+      function_name, # Ignore changes to the function name
+    ]
   }
 }
 
 resource "aws_api_gateway_rest_api" "crud_api" {
   name        = "crud-api"
   description = "CRUD API"
-
-  lifecycle {
-    create_before_destroy = true
-    prevent_destroy       = true
-  }
 }
 
 resource "aws_api_gateway_resource" "items" {
   rest_api_id = aws_api_gateway_rest_api.crud_api.id
   parent_id   = aws_api_gateway_rest_api.crud_api.root_resource_id
   path_part   = "items"
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
-resource "aws_api_gateway_method" "get_items_method" {
+resource "aws_api_gateway_method" "items_method_get" {
   rest_api_id   = aws_api_gateway_rest_api.crud_api.id
   resource_id   = aws_api_gateway_resource.items.id
   http_method   = "GET"
   authorization = "NONE"
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
-resource "aws_api_gateway_method" "post_items_method" {
+resource "aws_api_gateway_method" "items_method_post" {
   rest_api_id   = aws_api_gateway_rest_api.crud_api.id
   resource_id   = aws_api_gateway_resource.items.id
   http_method   = "POST"
   authorization = "NONE"
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
-resource "aws_api_gateway_method" "put_items_method" {
+resource "aws_api_gateway_method" "items_method_put" {
   rest_api_id   = aws_api_gateway_rest_api.crud_api.id
   resource_id   = aws_api_gateway_resource.items.id
   http_method   = "PUT"
   authorization = "NONE"
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
-resource "aws_api_gateway_method" "delete_items_method" {
+resource "aws_api_gateway_method" "items_method_delete" {
   rest_api_id   = aws_api_gateway_rest_api.crud_api.id
   resource_id   = aws_api_gateway_resource.items.id
   http_method   = "DELETE"
   authorization = "NONE"
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
-resource "aws_api_gateway_integration" "get_lambda_integration" {
+resource "aws_api_gateway_integration" "lambda_integration_get" {
   rest_api_id             = aws_api_gateway_rest_api.crud_api.id
   resource_id             = aws_api_gateway_resource.items.id
-  http_method             = aws_api_gateway_method.get_items_method.http_method
+  http_method             = aws_api_gateway_method.items_method_get.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.crud_lambda.invoke_arn
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
-resource "aws_api_gateway_integration" "post_lambda_integration" {
+resource "aws_api_gateway_integration" "lambda_integration_post" {
   rest_api_id             = aws_api_gateway_rest_api.crud_api.id
   resource_id             = aws_api_gateway_resource.items.id
-  http_method             = aws_api_gateway_method.post_items_method.http_method
+  http_method             = aws_api_gateway_method.items_method_post.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.crud_lambda.invoke_arn
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
-resource "aws_api_gateway_integration" "put_lambda_integration" {
+resource "aws_api_gateway_integration" "lambda_integration_put" {
   rest_api_id             = aws_api_gateway_rest_api.crud_api.id
   resource_id             = aws_api_gateway_resource.items.id
-  http_method             = aws_api_gateway_method.put_items_method.http_method
+  http_method             = aws_api_gateway_method.items_method_put.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.crud_lambda.invoke_arn
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
-resource "aws_api_gateway_integration" "delete_lambda_integration" {
+resource "aws_api_gateway_integration" "lambda_integration_delete" {
   rest_api_id             = aws_api_gateway_rest_api.crud_api.id
   resource_id             = aws_api_gateway_resource.items.id
-  http_method             = aws_api_gateway_method.delete_items_method.http_method
+  http_method             = aws_api_gateway_method.items_method_delete.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.crud_lambda.invoke_arn
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 resource "aws_lambda_permission" "api_gateway_permission" {
@@ -182,24 +145,16 @@ resource "aws_lambda_permission" "api_gateway_permission" {
   function_name = aws_lambda_function.crud_lambda.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.crud_api.execution_arn}/*/*"
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 resource "aws_api_gateway_deployment" "api_deployment" {
   depends_on = [
-    aws_api_gateway_integration.get_lambda_integration,
-    aws_api_gateway_integration.post_lambda_integration,
-    aws_api_gateway_integration.put_lambda_integration,
-    aws_api_gateway_integration.delete_lambda_integration,
+    aws_api_gateway_integration.lambda_integration_get,
+    aws_api_gateway_integration.lambda_integration_post,
+    aws_api_gateway_integration.lambda_integration_put,
+    aws_api_gateway_integration.lambda_integration_delete,
   ]
 
   rest_api_id = aws_api_gateway_rest_api.crud_api.id
   stage_name  = "prod"
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
