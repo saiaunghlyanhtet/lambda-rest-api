@@ -45,23 +45,41 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-1
 
+      - name: Validate AWS CLI Configuration
+        run: aws sts get-caller-identity
+
       - name: Get API Gateway ID
         id: get_api_id
         run: |
-          API_ID=$(aws apigateway get-rest-apis --query "items[?name=='crud-api'].id" --output text | head -n 1)
+          API_ID=$(aws apigateway get-rest-apis --query "items[?name=='crud-api'].id" --output text)
           echo "API_ID=${API_ID}" >> $GITHUB_ENV
+          echo "API_ID=${API_ID}"
+
+      - name: Check API Gateway ID
+        run: |
+          aws apigateway get-rest-apis --query "items[?id=='${{ env.API_ID }}']" --output text
 
       - name: Get Resource ID
         id: get_resource_id
         run: |
           RESOURCE_ID=$(aws apigateway get-resources --rest-api-id ${{ env.API_ID }} --query "items[?path=='/items'].id" --output text)
           echo "RESOURCE_ID=${RESOURCE_ID}" >> $GITHUB_ENV
+          echo "RESOURCE_ID=${RESOURCE_ID}"
+
+      - name: Check Resource ID
+        run: |
+          aws apigateway get-resources --rest-api-id ${{ env.API_ID }} --query "items[?id=='${{ env.RESOURCE_ID }}']" --output text
 
       - name: Get Lambda Function Name
         id: get_lambda_function_name
         run: |
-          FUNCTION_NAME=$(aws lambda list-functions --query "Functions[?FunctionName=='crudLambdaFunction'].FunctionArn" --output text)
+          FUNCTION_NAME=$(aws lambda list-functions --query "Functions[?FunctionName=='crudLambdaFunction'].FunctionName" --output text)
           echo "FUNCTION_NAME=${FUNCTION_NAME}" >> $GITHUB_ENV
+          echo "FUNCTION_NAME=${FUNCTION_NAME}"
+
+      - name: Check Lambda Function
+        run: |
+          aws lambda get-function --function-name ${{ env.FUNCTION_NAME }}
 
       - name: Terraform Init
         run: terraform init
