@@ -51,7 +51,7 @@ jobs:
       - name: Get API Gateway ID
         id: get_api_id
         run: |
-          API_ID=$(aws apigateway get-rest-apis --query "items[-1].id" --output text | sed 's/ //g')
+          API_ID=$(aws apigateway get-rest-apis --query "items[?name=='crud-api'].id" --output json | jq -r '.[-1]')
           echo "API_ID=${API_ID}" >> $GITHUB_ENV
           echo "API_ID=${API_ID}"
 
