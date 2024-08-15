@@ -28,7 +28,6 @@ class TestAPI(unittest.TestCase):
                 'ReadCapacityUnits': 5,
                 'WriteCapacityUnits': 5
             },
-            BillingMode='PAY_PER_REQUEST'
         )
         self.table.wait_until_exists()
         
